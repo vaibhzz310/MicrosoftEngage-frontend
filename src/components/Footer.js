@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-
 import {Navbar, Container, Col} from 'react-bootstrap';
+import '../App.css'
 
 export default class Footer extends Component {
     render() {
@@ -10,7 +10,7 @@ export default class Footer extends Component {
             <Navbar fixed="bottom" bg="dark" variant="dark">
                 <Container>
                     <Col lg={12} className="text-center text-muted">
-                        <div>{fullYear}-{fullYear+1}, All Rights Reserved by Almighty Java</div>
+                        <div>{fullYear}-{fullYear+1}, All rights reserved by the developer</div>
                     </Col>
                 </Container>
             </Navbar>

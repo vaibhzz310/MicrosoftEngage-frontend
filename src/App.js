@@ -9,15 +9,17 @@ import Welcome from './components/Welcome';
 import Scheduler from './components/Scheduler';
 import Footer from './components/Footer';
 //import Calendar from "./components/Calendar";
+import Register from './components/Register';
+import Login from './components/Login';
 
 export default function App() {
   const marginTop = {
     marginTop:"20px"
   };
 
-  const heading = "Welcome to Book Shop";
-  const quote = "Good friends, good books, and a sleepy conscience: this is the ideal life.";
-  const footer = "Mark Twain";
+  const heading = "Welcome to the Scheduler Application";
+  const quote = "You can view your time-table for any week and choose to attend a class online or offline";
+  const footer = "Have a nice day :)";
 
   return (
     <Router>
@@ -29,6 +31,9 @@ export default function App() {
                         <Route path="/" exact component={() => <Welcome heading={heading} quote={quote} footer={footer}/>}/>
                         <Route path="/scheduler" exact component={Scheduler}/>
                         {/* <Route path="/calendar" exact component={Calendar}/> */}
+                        <Route path="/register" exact component={Register}/>
+                        <Route path="/login" exact component={Login}/>
+                        <Route path="/logout" exact component={Login}/>
                     </Switch>
                 </Col>
             </Row>

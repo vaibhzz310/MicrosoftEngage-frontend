@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {Card, Table, InputGroup, FormControl, Button,Modal} from 'react-bootstrap';
+import {Card, Table, InputGroup, FormControl, Button,Modal, Row} from 'react-bootstrap';
+import DatePicker from 'sassy-datepicker';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faUsers, faStepBackward, faFastBackward, faStepForward, faFastForward} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -13,10 +14,12 @@ export default class Scheduler extends Component {
             studentId : 1,
             todayDate : new Date(),
             currentDate : new Date(),
+            currentWeek : "",
             weekEvents : [],
             showModal : false,
             clickedEventId : null,
-            clickedEvent : null
+            clickedEvent : null,
+            showDatePicker : false
         };
     }
 
@@ -24,12 +27,12 @@ export default class Scheduler extends Component {
         this.fetchWeekEvents();
     }
 
-    // componentDidUpdate(prevState){
-    //     if(this.state.currentDate!==prevState.currentDate){
-    //         this.fetchWeekEvents();
-    //         this.composeEventWeekMatrix();
-    //     }
-    // }
+    componentDidUpdate(prevProps,prevState){
+        if(this.state.currentDate.toISOString().split('T')[0]
+        !==prevState.currentDate.toISOString().split('T')[0]){
+            this.fetchWeekEvents();
+        }
+    }
 
     //helper function to calculate date on previous or next days
     calculateDate=(date,days)=>{
@@ -39,71 +42,37 @@ export default class Scheduler extends Component {
     fetchWeekEvents = () => {
         //preprocessing the date to get week's events
         let dateParameter=this.state.currentDate;
-        if(this.state.currentDate.getDay()!==0){
-            dateParameter=this.calculateDate(dateParameter,-this.state.currentDate.getDay());
+        if(dateParameter.getDay()!==0){
+            dateParameter=this.calculateDate(dateParameter,-dateParameter.getDay());
         }
-        console.log(dateParameter);
-        //Now using studentId and dateParameter fetch all event information for that student for that week
-        // axios.get("http://localhost:8081/rest/event/student?"+this.state.studentId+"date?"+dateParameter)
-        // .then(response => response.data)
-        // .then((data) => {
-        //     this.setState({weekEvents: data});
-        // });
-        const data=[
-            {
-                "eventId": 6,
-                "eventInfoId": 5,
-                "studentId": 1,
-                "modeOpted": null,
-                "attendence": null,
-                "courseCode": "CST103",
-                "eventType": "Lecture",
-                "eventDate": "2021-11-17",
-                "startTime": "11:00:00",
-                "endTime": "12:00:00",
-                "capacity": 50,
-                "onlineClassLink": "https://meet.google.com/uoe-cnxz-tft"
-            },
-            {
-                "eventId": 13,
-                "eventInfoId": 12,
-                "studentId": 1,
-                "modeOpted": null,
-                "attendence": null,
-                "courseCode": "HST101",
-                "eventType": "Lecture",
-                "eventDate": "2021-11-17",
-                "startTime": "15:00:00",
-                "endTime": "16:00:00",
-                "capacity": 25,
-                "onlineClassLink": "https://meet.google.com/uoe-cnxz-tft"
-            }
-        ]
-        this.setState({weekEvents:data});
-    };
+        //console.log(this.state.currentDate.toISOString().split('T')[0]);
 
-    // buildEventWeekMatrix=()=>{
-    //     const temp=[];
-    //     for(let i=0;i<7;i++){
-    //         temp.push([]);
-    //         for(let j=0;j<9;j++){
-    //             if()
-    //             temp[i].push("None");
-    //         }
-    //     }
-    //     eventMatrixWeek=temp;
-    // }
+        //Now using studentId and dateParameter fetch all event information for that student for that week
+        axios.get("http://localhost:8081/rest/event/student"
+            +this.state.studentId
+            +"/"
+            +dateParameter.toISOString().split('T')[0]
+        )
+        .then(response => response.data)
+        .then((data) => {
+            this.setState({weekEvents: data});
+        });
+    };
 
     composeEventWeekMatrix=(eventMatrixWeek)=>{
         //write code to transfer events from weekEvents to eventMatrixWeek 
         //this.buildEventWeekMatrix();
         this.state.weekEvents.map((weekEvent)=>{
             let [year,month,day]=weekEvent.eventDate.split("-").map((x)=>parseInt(x));
-            let eventDate=new Date(year,month,day);
+            // month-1 because javascript Date has months from 0-11
+            let eventDate=new Date(year,month-1,day);
             const x=eventDate.getDay();
             const y=(weekEvent.startTime.split(":").map((x)=>parseInt(x))[0])-7;
             eventMatrixWeek[x][y]=
-                <Button id={weekEvent.eventId} onClick={this.handleShow} className="color-purple">
+                <Button 
+                id={weekEvent.eventId} 
+                onClick={this.handleShow} 
+                className={weekEvent.modeOpted?"color-orange":"color-purple"}>
                     {weekEvent.courseCode}
                 </Button>;
         })
@@ -163,21 +132,35 @@ export default class Scheduler extends Component {
             });
     };
 
+    onChooseDate=()=>{
+        this.setState({showDatePicker : true});
+    }
+
+    onDateChange=(date)=>{
+        console.log(date);
+        this.setState({showDatePicker : false, currentDate:date});
+    }
+
+    closeDatePicker=()=>{
+        this.setState({showDatePicker : false});
+    }
+
     render(){
-        console.log(this.state.weekEvents);
+        //console.log(this.state.weekEvents);
         let eventMatrixWeek=[
-            ["Monday","None","None","None","None","None","None","None","None","None"],
-            ["Tuesday","None","None","None","None","None","None","None","None","None"],
-            ["Wednesday","None","None","None","None","None","None","None","None","None"],
-            ["Thursday","None","None","None","None","None","None","None","None","None"],
-            ["Friday","None","None","None","None","None","None","None","None","None"],
-            ["Saturday","None","None","None","None","None","None","None","None","None"]
+            ["Monday","-","-","-","-","-","-","-","-","-"],
+            ["Tuesday","-","-","-","-","-","-","-","-","-"],
+            ["Wednesday","-","-","-","-","-","-","-","-","-"],
+            ["Thursday","-","-","-","-","-","-","-","-","-"],
+            ["Friday","-","-","-","-","-","-","-","-","-"],
+            ["Saturday","-","-","-","-","-","-","-","-","-"]
         ]
-        console.log(eventMatrixWeek);
+        //console.log(eventMatrixWeek);
         eventMatrixWeek=this.composeEventWeekMatrix(eventMatrixWeek);
-        console.log(eventMatrixWeek);
+        //console.log(eventMatrixWeek);
         return(
             <div>
+
                 <div>
                 {this.state.showModal?
                 <Modal
@@ -202,10 +185,41 @@ export default class Scheduler extends Component {
                         <Button variant="primary" onClick={this.handleChoseOffline}>Offline</Button>
                     </Modal.Footer>
                 </Modal>
-                : ""}
+                :null}
                 </div>
+
+
                 <Card className={"border border-dark bg-dark text-white"}>
-                    <Card.Header><FontAwesomeIcon icon={faUsers} /> User List</Card.Header>
+
+                    <Card.Header>
+                        <Row>
+                        <div>
+                            <FontAwesomeIcon icon={faUsers} /> 
+                            Time Table
+                        </div>
+                        <div >
+                            <Button variant="dark" size="sm" onClick={this.onChooseDate}>Choose Date</Button>
+                        </div>
+                        <div>
+                            Selected Date : {this.state.currentDate.toDateString()}
+                        </div>
+                        </Row>
+                        <Modal
+                            show={this.state.showDatePicker}
+                            onHide={this.closeDatePicker}
+                            backdrop="static"
+                            keyboard={false}
+                            size="sm"
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>Date Picker</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <DatePicker onChange={this.onDateChange} initialDate={new Date()} />
+                            </Modal.Body>
+                        </Modal>
+                    </Card.Header>
+
                     <Card.Body>
                         <Table  bordered hover striped variant="dark">
                             <thead>
