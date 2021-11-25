@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {Card, Table, InputGroup, FormControl, Button,Modal, Row} from 'react-bootstrap';
+import {Card, Table, Button,Modal, Row} from 'react-bootstrap';
 import DatePicker from 'sassy-datepicker';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faUsers, faStepBackward, faFastBackward, faStepForward, faFastForward} from '@fortawesome/free-solid-svg-icons';
+import {faUsers} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import "../App.css";
 //import MyToast from './MyToast';
@@ -11,7 +11,7 @@ export default class Scheduler extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            studentId : 1,
+            studentId : 2,
             todayDate : new Date(),
             currentDate : new Date(),
             currentWeek : "",
@@ -42,19 +42,27 @@ export default class Scheduler extends Component {
     fetchWeekEvents = () => {
         //preprocessing the date to get week's events
         let dateParameter=this.state.currentDate;
+        console.log(dateParameter);
         if(dateParameter.getDay()!==0){
+            console.log(dateParameter.getDay());
             dateParameter=this.calculateDate(dateParameter,-dateParameter.getDay());
         }
-        //console.log(this.state.currentDate.toISOString().split('T')[0]);
+        console.log(dateParameter);
+        console.log(dateParameter.toLocaleDateString());
+        const [m,d,y]=dateParameter.toLocaleDateString().split("/");
+        const date_t=y+"-"+m+"-"+d;
+        console.log(date_t);
 
         //Now using studentId and dateParameter fetch all event information for that student for that week
         axios.get("http://localhost:8081/rest/event/student"
             +this.state.studentId
             +"/"
-            +dateParameter.toISOString().split('T')[0]
+            +date_t
+            //+dateParameter.toISOString().split('T')[0]
         )
         .then(response => response.data)
         .then((data) => {
+            console.log(data);
             this.setState({weekEvents: data});
         });
     };
@@ -62,11 +70,11 @@ export default class Scheduler extends Component {
     composeEventWeekMatrix=(eventMatrixWeek)=>{
         //write code to transfer events from weekEvents to eventMatrixWeek 
         //this.buildEventWeekMatrix();
-        this.state.weekEvents.map((weekEvent)=>{
+        this.state.weekEvents.forEach((weekEvent)=>{
             let [year,month,day]=weekEvent.eventDate.split("-").map((x)=>parseInt(x));
             // month-1 because javascript Date has months from 0-11
             let eventDate=new Date(year,month-1,day);
-            const x=eventDate.getDay();
+            const x=eventDate.getDay()-1;
             const y=(weekEvent.startTime.split(":").map((x)=>parseInt(x))[0])-7;
             eventMatrixWeek[x][y]=
                 <Button 
@@ -85,14 +93,14 @@ export default class Scheduler extends Component {
     };
 
     handleShow=(event)=>{
-        alert(event.target.id);
+        // alert(event.target.id);
         this.setState({showModal : true , clickedEventId : event.target.id , 
             clickedEvent : this.state.weekEvents
                 .find(weekEvent => weekEvent.eventId==event.target.id)
         })
     };
 
-    handleReset=(event)=>{
+    handleNone=(event)=>{
         event.preventDefault();
         this.handleSaveEvent(null);
         this.handleClose();
@@ -106,6 +114,7 @@ export default class Scheduler extends Component {
 
     handleChoseOffline=(event)=>{
         event.preventDefault();
+
         this.handleSaveEvent("Offline");
         this.handleClose();
     }
@@ -180,7 +189,7 @@ export default class Scheduler extends Component {
                         Edit your opted mode with the below buttons
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={this.handleReset}>Reset</Button>
+                        <Button variant="secondary" onClick={this.handleNone}>None</Button>
                         <Button variant="primary" onClick={this.handleChoseOnline}>Online</Button>
                         <Button variant="primary" onClick={this.handleChoseOffline}>Offline</Button>
                     </Modal.Footer>
@@ -197,9 +206,11 @@ export default class Scheduler extends Component {
                             <FontAwesomeIcon icon={faUsers} /> 
                             Time Table
                         </div>
+                        {"   "}
                         <div >
                             <Button variant="dark" size="sm" onClick={this.onChooseDate}>Choose Date</Button>
                         </div>
+                        {"   "}
                         <div>
                             Selected Date : {this.state.currentDate.toDateString()}
                         </div>
@@ -239,7 +250,7 @@ export default class Scheduler extends Component {
                             <tbody>
                                 {this.state.weekEvents.length === 0 ?
                                     <tr align="center">
-                                        <td colSpan="6">No Classes Scheduled</td>
+                                        <td colSpan="10">No Classes Scheduled</td>
                                     </tr> :
                                     eventMatrixWeek.map((row,index) => (
                                         <tr align="complete" key={index}>

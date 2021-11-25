@@ -11,6 +11,9 @@ import Footer from './components/Footer';
 //import Calendar from "./components/Calendar";
 import Register from './components/Register';
 import Login from './components/Login';
+import EventInformation from './components/EventInformation';
+import EventInformationList from './components/EventInformationList';
+import Analytics from './components/Analytics';
 
 export default function App() {
   const marginTop = {
@@ -31,6 +34,10 @@ export default function App() {
                         <Route path="/" exact component={() => <Welcome heading={heading} quote={quote} footer={footer}/>}/>
                         <Route path="/scheduler" exact component={Scheduler}/>
                         {/* <Route path="/calendar" exact component={Calendar}/> */}
+                        <Route path="/add" exact component={EventInformation}/>
+                        <Route path="/edit/:eventInfoId" exact component={EventInformation}/>
+                        <Route path="/list" exact component={EventInformationList}/>
+                        <Route path="/analysis" exact component={Analytics}/>
                         <Route path="/register" exact component={Register}/>
                         <Route path="/login" exact component={Login}/>
                         <Route path="/logout" exact component={Login}/>

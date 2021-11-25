@@ -27,6 +27,9 @@ class NavigationBar extends Component {
                 <Nav className="mr-auto">
                     <Link to={"scheduler"} className="nav-link">Scheduler</Link>
                     <Link to={"calendar"} className="nav-link">Calendar</Link>
+                    <Link to={"add"} className="nav-link">Add(Schedule) Class</Link>
+                    <Link to={"list"} className="nav-link">Scheduled Classes</Link>
+                    <Link to={"analysis"} className="nav-link">Analytics Report</Link>
                 </Nav>
                 <Nav className="navbar-right">
                     <Link to={"logout"} className="nav-link" onClick={this.logout}><FontAwesomeIcon icon={faSignOutAlt} /> Logout</Link>
