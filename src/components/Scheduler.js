@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {Card, Table, Button,Modal, Row} from 'react-bootstrap';
+import {Card, Table, Button,DropdownButton,Dropdown,Modal, Row, Col} from 'react-bootstrap';
 import DatePicker from 'sassy-datepicker';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faUsers} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import "../App.css";
-//import MyToast from './MyToast';
+import MyToast from './MyToast';
 
 export default class Scheduler extends Component {
     constructor(props) {
@@ -19,7 +19,9 @@ export default class Scheduler extends Component {
             showModal : false,
             clickedEventId : null,
             clickedEvent : null,
-            showDatePicker : false
+            showDatePicker : false,
+            showToast:false,
+            refresh:false
         };
     }
 
@@ -29,7 +31,9 @@ export default class Scheduler extends Component {
 
     componentDidUpdate(prevProps,prevState){
         if(this.state.currentDate.toISOString().split('T')[0]
-        !==prevState.currentDate.toISOString().split('T')[0]){
+        !==prevState.currentDate.toISOString().split('T')[0]  
+        ||this.state.refresh!==prevState.refresh)
+        {
             this.fetchWeekEvents();
         }
     }
@@ -42,16 +46,11 @@ export default class Scheduler extends Component {
     fetchWeekEvents = () => {
         //preprocessing the date to get week's events
         let dateParameter=this.state.currentDate;
-        console.log(dateParameter);
         if(dateParameter.getDay()!==0){
-            console.log(dateParameter.getDay());
             dateParameter=this.calculateDate(dateParameter,-dateParameter.getDay());
         }
-        console.log(dateParameter);
-        console.log(dateParameter.toLocaleDateString());
         const [m,d,y]=dateParameter.toLocaleDateString().split("/");
         const date_t=y+"-"+m+"-"+d;
-        console.log(date_t);
 
         //Now using studentId and dateParameter fetch all event information for that student for that week
         axios.get("http://localhost:8081/rest/event/student"
@@ -89,7 +88,10 @@ export default class Scheduler extends Component {
     };
 
     handleClose=()=>{
-        this.setState({showModal : false , clickedEventId : null , clickedEvent : null})
+        //refresh not working properly, when chosing none from any other then not reloading the events
+        // const refreshValue=this.state.refresh;
+        // , refresh:!refreshValue
+        this.setState({showModal:false, clickedEventId:null, clickedEvent:null});
     };
 
     handleShow=(event)=>{
@@ -102,22 +104,50 @@ export default class Scheduler extends Component {
 
     handleNone=(event)=>{
         event.preventDefault();
+        if(this.state.clickedEvent.modeOpted==="Offline"){
+            this.handleSaveEventInformation(this.state.clickedEvent.capacity + 1)
+        }
         this.handleSaveEvent(null);
         this.handleClose();
     }
 
     handleChoseOnline=(event)=>{
         event.preventDefault();
+        if(this.state.clickedEvent.modeOpted==="Offline"){
+            this.handleSaveEventInformation(this.state.clickedEvent.capacity + 1)
+        }
         this.handleSaveEvent("Online");
         this.handleClose();
     }
 
     handleChoseOffline=(event)=>{
         event.preventDefault();
-
+        if(this.state.clickedEvent.modeOpted!=="Offline"){
+            this.handleSaveEventInformation(this.state.clickedEvent.capacity - 1)
+        }
         this.handleSaveEvent("Offline");
         this.handleClose();
     }
+
+    handleSaveEventInformation = (updatedCapacity) => {
+        //Update opted mode in calendar events
+        const updatedEventInformation = {
+            "eventInfoId": this.state.clickedEvent.eventInfoId,
+            "courseCode": this.state.clickedEvent.courseCode,
+            "eventType": this.state.clickedEvent.eventType,
+            "eventDate": this.state.clickedEvent.eventDate,
+            "startTime": this.state.clickedEvent.startTime,
+            "endTime": this.state.clickedEvent.endTime,
+            "capacity": updatedCapacity,
+            "onlineClassLink": this.state.clickedEvent.onlineClassLink
+        };
+        axios.put("http://localhost:8081/rest/eventInformation", updatedEventInformation)
+            .then(response => {
+                if(response.data != null) {
+                } else {
+                }
+            });
+    };
 
     handleSaveEvent = (chosenMode) => {
         //Update opted mode in calendar events
@@ -133,10 +163,10 @@ export default class Scheduler extends Component {
                 if(response.data != null) {
                     //Succesfuly updated event
                     //showToast state variable needs to be added and Toast placed in return()
-                    //<MyToast show = {true} message = "Updated Successfully" type = {"success"}/>
+                    this.setState({showToast:true});
+                    setTimeout(()=>this.setState({showToast:false}),3000);
                 } else {
                     //Failed to update
-                    //<MyToast show = {true} message = "Error" type = {"failed"}/>
                 }
             });
     };
@@ -146,7 +176,6 @@ export default class Scheduler extends Component {
     }
 
     onDateChange=(date)=>{
-        console.log(date);
         this.setState({showDatePicker : false, currentDate:date});
     }
 
@@ -155,7 +184,7 @@ export default class Scheduler extends Component {
     }
 
     render(){
-        //console.log(this.state.weekEvents);
+        console.log("rendered");
         let eventMatrixWeek=[
             ["Monday","-","-","-","-","-","-","-","-","-"],
             ["Tuesday","-","-","-","-","-","-","-","-","-"],
@@ -164,12 +193,14 @@ export default class Scheduler extends Component {
             ["Friday","-","-","-","-","-","-","-","-","-"],
             ["Saturday","-","-","-","-","-","-","-","-","-"]
         ]
-        //console.log(eventMatrixWeek);
         eventMatrixWeek=this.composeEventWeekMatrix(eventMatrixWeek);
-        //console.log(eventMatrixWeek);
+        let dateParameter=this.state.currentDate;
+        if(dateParameter.getDay()!==0){
+            dateParameter=this.calculateDate(dateParameter,-dateParameter.getDay());
+        }
         return(
             <div>
-
+                <MyToast show = {this.state.showToast} message = "Class mode chosen successfully" type = {"success"}/>
                 <div>
                 {this.state.showModal?
                 <Modal
@@ -183,10 +214,15 @@ export default class Scheduler extends Component {
                         <Modal.Title>{this.state.clickedEvent.courseCode}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        This is a {this.state.clickedEvent.eventType} class.<br/>
-                        Capacity : {this.state.clickedEvent.capacity}<br/>
-                        Opted mode : {this.state.clickedEvent.modeOpted}<br/>
-                        Edit your opted mode with the below buttons
+                        This is a <b>{this.state.clickedEvent.eventType}</b> class.<br/>
+                        The Capacity of the Offline class is <b>{this.state.clickedEvent.capacity}</b><br/>
+                        You have opted for {this.state.clickedEvent.modeOpted?<b>{this.state.clickedEvent.modeOpted}</b> :<b>no type of</b> } class<br/>
+                        Edit your choosen mode with the below buttons
+                        <DropdownButton variant="success" id="opted-mode" title="Choose Mode" size="sm" >
+                            <Dropdown.Item >Offline</Dropdown.Item>
+                            <Dropdown.Item >Online</Dropdown.Item>
+                            <Dropdown.Item >None</Dropdown.Item>
+                        </DropdownButton>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={this.handleNone}>None</Button>
@@ -201,19 +237,19 @@ export default class Scheduler extends Component {
                 <Card className={"border border-dark bg-dark text-white"}>
 
                     <Card.Header>
-                        <Row>
-                        <div>
+                        <Row >
+                        <Col>
+                            <h4>
                             <FontAwesomeIcon icon={faUsers} /> 
                             Time Table
-                        </div>
-                        {"   "}
-                        <div >
-                            <Button variant="dark" size="sm" onClick={this.onChooseDate}>Choose Date</Button>
-                        </div>
-                        {"   "}
-                        <div>
-                            Selected Date : {this.state.currentDate.toDateString()}
-                        </div>
+                            </h4>
+                        </Col>
+                        <Col>
+                            <Button variant="dark" onClick={this.onChooseDate}>Choose Date</Button>
+                        </Col>
+                        <Col xs={5} >
+                            Selected Week : {this.calculateDate(dateParameter,1).toDateString()} - {this.calculateDate(dateParameter,6).toDateString()}
+                        </Col>
                         </Row>
                         <Modal
                             show={this.state.showDatePicker}
