@@ -183,11 +183,18 @@ export default class EventInformation extends Component {
                             </Form.Group>
                             <Form.Group as={Col} controlId="formGridAuthor">
                                 <Form.Label>Event Type</Form.Label>
-                                <Form.Control required autoComplete="off"
-                                    type="test" name="eventType"
+                                {/* <Form.Control required autoComplete="off"
+                                    type="select" name="eventType"
                                     value={eventType} onChange={this.eventInformationChange}
                                     className={"bg-dark text-white"}
-                                    placeholder="eg: Lecture , Tutorial" />
+                                    placeholder="eg: Lecture , Tutorial" /> */}
+                                <Form.Control required autoComplete="off"
+                                    as="select" name="eventType"
+                                    value={eventType} onChange={this.eventInformationChange}
+                                    className={"bg-dark text-white"}>
+                                        <option value="Lecture">Lecture</option>
+                                        <option value="Tutorial">Tutorial</option>
+                                </Form.Control>
                             </Form.Group>
                         </Form.Row>
                         <Form.Row>
