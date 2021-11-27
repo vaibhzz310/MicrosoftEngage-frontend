@@ -251,10 +251,10 @@ export default class Scheduler extends Component {
                             Time Table
                             </h4>
                         </Col>
-                        <Col>
+                        <Col style={{textAlign:"center"}}>
                             <Button variant="dark" onClick={this.onChooseDate}>Choose Date</Button>
                         </Col>
-                        <Col xs={5} >
+                        <Col xs={5} style={{textAlign:"right"}} >
                             Selected Week : {this.calculateDate(dateParameter,1).toDateString()} - {this.calculateDate(dateParameter,6).toDateString()}
                         </Col>
                         </Row>

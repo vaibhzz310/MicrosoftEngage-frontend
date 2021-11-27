@@ -173,7 +173,7 @@ export default class EventInformation extends Component {
                         id="eventInformationFormId">
                     <Card.Body>
                         <Form.Row>
-                            <Form.Group as={Col} controlId="formGridTitle">
+                            <Form.Group as={Col} controlId="courseCode">
                                 <Form.Label>Course Code</Form.Label>
                                 <Form.Control required autoComplete="off"
                                     type="test" name="courseCode"
@@ -181,7 +181,7 @@ export default class EventInformation extends Component {
                                     className={"bg-dark text-white"}
                                     placeholder="Enter the Course Code " />
                             </Form.Group>
-                            <Form.Group as={Col} controlId="formGridAuthor">
+                            <Form.Group as={Col} controlId="eventType">
                                 <Form.Label>Event Type</Form.Label>
                                 {/* <Form.Control required autoComplete="off"
                                     type="select" name="eventType"
@@ -198,7 +198,7 @@ export default class EventInformation extends Component {
                             </Form.Group>
                         </Form.Row>
                         <Form.Row>
-                            <Form.Group as={Col} controlId="formGridCoverPhotoURL">
+                            <Form.Group as={Col} controlId="eventDate">
                                 <Form.Label>Event Date</Form.Label>
                                 <Form.Control required autoComplete="off"
                                     type="date" name="eventDate"
@@ -206,7 +206,7 @@ export default class EventInformation extends Component {
                                     className={"bg-dark text-white"}
                                     placeholder="Enter Date" />
                             </Form.Group>
-                            <Form.Group as={Col} controlId="formGridISBNNumber">
+                            <Form.Group as={Col} controlId="startTime">
                                 <Form.Label>Start Time</Form.Label>
                                 <Form.Control required autoComplete="off"
                                     type="time" name="startTime"
@@ -216,7 +216,7 @@ export default class EventInformation extends Component {
                             </Form.Group>
                         </Form.Row>
                         <Form.Row>
-                            <Form.Group as={Col} controlId="formGridPrice">
+                            <Form.Group as={Col} controlId="endTime">
                                 <Form.Label>End Time</Form.Label>
                                 <Form.Control required autoComplete="off"
                                     type="time" name="endTime"
@@ -224,7 +224,7 @@ export default class EventInformation extends Component {
                                     className={"bg-dark text-white"}
                                     placeholder="" />
                             </Form.Group>
-                            <Form.Group as={Col} controlId="formGridLanguage">
+                            <Form.Group as={Col} controlId="capacity">
                                 <Form.Label>Capacity</Form.Label>
                                 <Form.Control required autoComplete="off"
                                     type="test" name="capacity"
@@ -234,7 +234,7 @@ export default class EventInformation extends Component {
                             </Form.Group>
                         </Form.Row>
                         <Form.Row>
-                            <Form.Group as={Col} controlId="formGridPrice">
+                            <Form.Group as={Col} controlId="onlineClassLink">
                                 <Form.Label>Online Class Link</Form.Label>
                                 <Form.Control autoComplete="off"
                                     type="test" name="onlineClassLink"
