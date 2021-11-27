@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import { Card } from 'react-bootstrap';
+import { Card ,Row,Col,Dropdown,DropdownButton} from 'react-bootstrap';
 import { MDBContainer } from "mdbreact";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
@@ -10,7 +10,7 @@ export default class Analytics extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            course: "Mathematics-01",
+            course: "",
             event_infos:[],
             events:[],
         };
@@ -20,6 +20,12 @@ export default class Analytics extends Component{
         this.findEventInformationByCourse(this.state.course);
         console.log(1);
         this.findEvents();
+    }
+
+    componentDidUpdate(prevProps,prevState){
+        if(this.state.course!==prevState.course){
+            this.findEventInformationByCourse(this.state.course);
+        }
     }
 
     findEventInformationByCourse = (course) => {
@@ -65,14 +71,6 @@ export default class Analytics extends Component{
         return data_metrics_t;
         //this.setState({data_metrics:data_metrics_t});
     }
-
-    // findDataMetricsByEventInfoId = (eventInfoId) => {
-        
-    // }
-
-    //0 number of students for whom event scheduled 
-    //1 number of student choosing online
-    //2 number of student choosing offline
 
     render(){
         //data metrics has each element as [offline,online,none]
@@ -162,11 +160,22 @@ export default class Analytics extends Component{
                 }
             ]
         }
-
+        const course_list=["Algorithms","Mathematics","Economics","Sociology","English","Wireless","Neural Networks"];
         return(
             <Card >
                 <Card.Header >
-                    <h2>Report for {this.state.course}</h2>
+                    <Row>
+                    <Col>
+                        <h2>Report for {this.state.course}</h2>
+                    </Col>
+                    <Col>
+                        <DropdownButton variant="dark" id="selectCourse" title="Select Course" style={{textAlign:"right"}} >
+                            {course_list.map((course)=>{
+                                return <Dropdown.Item onSelect={()=>{this.setState({course:course})}}>{course}</Dropdown.Item>
+                            })}
+                        </DropdownButton>
+                    </Col>
+                    </Row>
                 </Card.Header>
                 <Card.Body>
 
@@ -175,8 +184,8 @@ export default class Analytics extends Component{
                     </MDBContainer>
 
                     {/* <h3>No. of students opted for this Course:</h3> */}
-                    <br/><br/><h3>Total classes scheduled till date = {this.state.event_infos.length}</h3><br/>
-                    <h3>Average number of students opting for Offline = {average_offline}</h3><br/>
+                    <br/><br/><h4>Total classes scheduled till date = {this.state.event_infos.length}</h4><br/>
+                    <h4>Average number of students opting for Offline = {average_offline}</h4><br/>
 
                 </Card.Body>
                 <Card.Footer>
