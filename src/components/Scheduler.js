@@ -102,8 +102,14 @@ export default class Scheduler extends Component {
         })
     };
 
+    handleSaveButton=(choosenMode)=>{
+        if(choosenMode==="Offline") this.handleChoseOffline();
+        else if(choosenMode==="Online") this.handleChoseOnline();
+        else if(choosenMode==="None") this.handleNone();
+    }
+
     handleNone=(event)=>{
-        event.preventDefault();
+        //event.preventDefault();
         if(this.state.clickedEvent.modeOpted==="Offline"){
             this.handleSaveEventInformation(this.state.clickedEvent.capacity + 1)
         }
@@ -112,7 +118,7 @@ export default class Scheduler extends Component {
     }
 
     handleChoseOnline=(event)=>{
-        event.preventDefault();
+        //event.preventDefault();
         if(this.state.clickedEvent.modeOpted==="Offline"){
             this.handleSaveEventInformation(this.state.clickedEvent.capacity + 1)
         }
@@ -121,7 +127,7 @@ export default class Scheduler extends Component {
     }
 
     handleChoseOffline=(event)=>{
-        event.preventDefault();
+        //event.preventDefault();
         if(this.state.clickedEvent.modeOpted!=="Offline"){
             this.handleSaveEventInformation(this.state.clickedEvent.capacity - 1)
         }
@@ -164,7 +170,9 @@ export default class Scheduler extends Component {
                     //Succesfuly updated event
                     //showToast state variable needs to be added and Toast placed in return()
                     this.setState({showToast:true});
-                    setTimeout(()=>this.setState({showToast:false}),3000);
+                    const refreshValue=this.state.refresh;
+                    // , refresh:!refreshValue
+                    setTimeout(()=>this.setState({showToast:false,refresh:!refreshValue}),3000);
                 } else {
                     //Failed to update
                 }
@@ -198,6 +206,7 @@ export default class Scheduler extends Component {
         if(dateParameter.getDay()!==0){
             dateParameter=this.calculateDate(dateParameter,-dateParameter.getDay());
         }
+        let choosenMode="";
         return(
             <div>
                 <MyToast show = {this.state.showToast} message = "Class mode chosen successfully" type = {"success"}/>
@@ -216,18 +225,16 @@ export default class Scheduler extends Component {
                     <Modal.Body>
                         This is a <b>{this.state.clickedEvent.eventType}</b> class.<br/>
                         The Capacity of the Offline class is <b>{this.state.clickedEvent.capacity}</b><br/>
-                        You have opted for {this.state.clickedEvent.modeOpted?<b>{this.state.clickedEvent.modeOpted}</b> :<b>no type of</b> } class<br/>
-                        Edit your choosen mode with the below buttons
+                        You have currently opted for {this.state.clickedEvent.modeOpted?<b>{this.state.clickedEvent.modeOpted}</b> :<b>no type of</b> } class<br/>
+                        <br/>
                         <DropdownButton variant="success" id="opted-mode" title="Choose Mode" size="sm" >
-                            <Dropdown.Item >Offline</Dropdown.Item>
-                            <Dropdown.Item >Online</Dropdown.Item>
-                            <Dropdown.Item >None</Dropdown.Item>
+                            <Dropdown.Item onSelect={()=>choosenMode="Offline"} >Offline</Dropdown.Item>
+                            <Dropdown.Item onSelect={()=>choosenMode="Online"} >Online</Dropdown.Item>
+                            <Dropdown.Item onSelect={()=>choosenMode="None"} >None</Dropdown.Item>
                         </DropdownButton>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={this.handleNone}>None</Button>
-                        <Button variant="primary" onClick={this.handleChoseOnline}>Online</Button>
-                        <Button variant="primary" onClick={this.handleChoseOffline}>Offline</Button>
+                        <Button variant="success" onClick={()=>this.handleSaveButton(choosenMode)}>Save</Button>
                     </Modal.Footer>
                 </Modal>
                 :null}
@@ -314,6 +321,9 @@ export default class Scheduler extends Component {
                             </tbody>
                         </Table>
                     </Card.Body>
+                    <Card.Footer>
+                        Purple colour shows that the student has not selected the mode to attend the class
+                    </Card.Footer>
                 </Card>
             </div>
         )
