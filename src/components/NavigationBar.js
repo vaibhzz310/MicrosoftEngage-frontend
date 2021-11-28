@@ -5,9 +5,34 @@ import {Link} from 'react-router-dom';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faUserPlus, faSignInAlt, faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
 import {logoutUser} from '../services/index';
+import axios from 'axios';
 import "../App.css";
 
 class NavigationBar extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            studentId:this.props.auth.studentId,
+            student:{}
+        };
+    }
+
+    componentDidMount(){
+        if(this.state.studentId==="admin"){
+            this.setState({student:{name:"Admin"}});
+        }
+        else{
+            axios.get("http://localhost:8081/rest/student/"+this.state.studentId)
+                .then(response => {
+                    if(response.data != null) {
+                        this.setState({student:response.data});
+                    }
+                }).catch((error) => {
+                    console.error("Error - "+error);
+                });
+        }
+    }
+
     logout = () => {
         this.props.logoutUser();
     };
@@ -22,11 +47,21 @@ class NavigationBar extends Component {
                 </Nav>
             </>
         );
-        const userLinks = (
+        const studentLinks = (
             <>
                 <Nav className="mr-auto">
-                    <Link to={"scheduler"} className="nav-link">Scheduler</Link>
-                    <Link to={"calendar"} className="nav-link">Calendar</Link>
+                    <Link to={"scheduler"} className="nav-link">Time-Table</Link>
+                    {/* <Link to={"calendar"} className="nav-link">Calendar</Link> */}
+                </Nav>
+                <Nav className="navbar-right">
+                    <Link to={"logout"} className="nav-link" onClick={this.logout}><FontAwesomeIcon icon={faSignOutAlt} /> Logout</Link>
+                </Nav>
+            </>
+        );
+
+        const adminLinks = (
+            <>
+                <Nav className="mr-auto">
                     <Link to={"add"} className="nav-link">Add(Schedule) Class</Link>
                     <Link to={"list"} className="nav-link">Scheduled Classes</Link>
                     <Link to={"analysis"} className="nav-link">Analytics Report</Link>
@@ -40,10 +75,10 @@ class NavigationBar extends Component {
         return (
             <Navbar className="color-purple" variant="dark">
                 <Link to={""} className="navbar-brand">
-                    <img src="https://i.ibb.co/grpvpLT/171421-antenna-icon.png" width="25" height="25" alt="brand"/> Scheduler Platform
+                    <img src="https://i.ibb.co/grpvpLT/171421-antenna-icon.png" width="25" height="25" alt="brand"/> Hello {this.state.student.name}
                 </Link>
-                {/* {this.props.auth.isLoggedIn ? userLinks : guestLinks} */}
-                {true ? userLinks : guestLinks}
+                {this.props.auth.isLoggedIn ? (this.state.studentId==="admin"?adminLinks:studentLinks ) : guestLinks}
+                {/* {true ? userLinks : guestLinks} */}
             </Navbar>
         );
     };
