@@ -78,7 +78,11 @@ export default class EventInformation extends Component {
 
         const eventInformation = {
             courseCode:this.state.courseCode, 
-            eventType:this.state.eventType, 
+
+            //hack
+            eventType:"Lecture",
+            //hack 
+
             eventDate:this.state.eventDate, 
             startTime:startTime_t, 
             endTime:endTime_t, 
@@ -245,7 +249,7 @@ export default class EventInformation extends Component {
                             </Form.Group>
                         </Form.Row>
                     </Card.Body>
-                    <Card.Footer style={{"textAlign":"right"}}>
+                    <Card.Footer style={{textAlign:"right"}}>
                         <Button size="sm" variant="success" type="submit">
                             <FontAwesomeIcon icon={faSave} /> 
                             {this.state.eventInfoId ? "Update" : "Save"}

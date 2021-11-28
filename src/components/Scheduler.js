@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import {Card, Table, Button,DropdownButton,Dropdown,Modal, Row, Col} from 'react-bootstrap';
 import DatePicker from 'sassy-datepicker';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -7,11 +8,11 @@ import axios from 'axios';
 import "../App.css";
 import MyToast from './MyToast';
 
-export default class Scheduler extends Component {
+class Scheduler extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            studentId : 2,
+            studentId : this.props.auth.studentId,
             todayDate : new Date(),
             currentDate : new Date(),
             currentWeek : "",
@@ -26,6 +27,7 @@ export default class Scheduler extends Component {
     }
 
     componentDidMount(){
+        console.log("studentId is "+this.state.studentId);
         this.fetchWeekEvents();
     }
 
@@ -50,7 +52,13 @@ export default class Scheduler extends Component {
             dateParameter=this.calculateDate(dateParameter,-dateParameter.getDay());
         }
         const [m,d,y]=dateParameter.toLocaleDateString().split("/");
-        const date_t=y+"-"+m+"-"+d;
+        let date_t=y+"-"+m+"-"+d;
+
+        //hack
+        if(date_t==="2021-12-5"){
+            date_t="2021-12-05";
+        }
+        //hack
 
         //Now using studentId and dateParameter fetch all event information for that student for that week
         axios.get("http://localhost:8081/rest/event/student"
@@ -329,3 +337,11 @@ export default class Scheduler extends Component {
         )
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        auth: state.auth
+    };
+};
+
+export default connect(mapStateToProps)(Scheduler);

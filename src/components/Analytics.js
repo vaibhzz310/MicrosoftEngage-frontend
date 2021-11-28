@@ -160,7 +160,7 @@ export default class Analytics extends Component{
                 }
             ]
         }
-        const course_list=["Algorithms","Mathematics","Economics","Sociology","English","Wireless","Neural Networks"];
+        const course_list=["Algorithms","Maths","Economics","Sociology","English","Wireless","Neural Networks"];
         return(
             <Card >
                 <Card.Header >
