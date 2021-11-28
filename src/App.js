@@ -8,7 +8,7 @@ import NavigationBar from './components/NavigationBar';
 import Welcome from './components/Welcome';
 import Scheduler from './components/Scheduler';
 import Footer from './components/Footer';
-//import Calendar from "./components/Calendar";
+import Calendar from "./components/Calendar";
 import Register from './components/Register';
 import Login from './components/Login';
 import EventInformation from './components/EventInformation';
@@ -33,7 +33,7 @@ export default function App() {
                     <Switch>
                         <Route path="/" exact component={() => <Welcome heading={heading} quote={quote} footer={footer}/>}/>
                         <Route path="/scheduler" exact component={Scheduler}/>
-                        {/* <Route path="/calendar" exact component={Calendar}/> */}
+                        <Route path="/calendar" exact component={Calendar}/>
                         <Route path="/add" exact component={EventInformation}/>
                         <Route path="/edit/:eventInfoId" exact component={EventInformation}/>
                         <Route path="/list" exact component={EventInformationList}/>
